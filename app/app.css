@@ -4,9 +4,112 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-background dark:bg-background;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
 }
+
+:root  {
+  --background: 159 30% 95%;
+  --foreground: 159 5% 10%;
+  --card: 159 30% 90%;
+  --card-foreground: 159 5% 15%;
+  --popover: 159 30% 95%;
+  --popover-foreground: 159 95% 10%;
+  --primary: 159 55% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 159 30% 87%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 121 30% 87%;
+  --muted-foreground: 159 5% 40%;
+  --accent: 121 30% 87%;
+  --accent-foreground: 159 5% 15%;
+  --destructive: 0 50% 50%;
+  --destructive-foreground: 159 5% 90%;
+  --border: 159 30% 82%;
+  --input: 159 30% 50%;
+  --ring: 159 55% 45%;
+  --radius: 0.75rem;
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+}
+.dark  {
+  --background: 159 30% 10%;
+  --foreground: 159 5% 90%;
+  --card: 159 30% 10%;
+  --card-foreground: 159 5% 90%;
+  --popover: 159 30% 5%;
+  --popover-foreground: 159 5% 90%;
+  --primary: 159 55% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 159 30% 20%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 121 30% 25%;
+  --muted-foreground: 159 5% 65%;
+  --accent: 121 30% 25%;
+  --accent-foreground: 159 5% 90%;
+  --destructive: 0 50% 50%;
+  --destructive-foreground: 159 5% 90%;
+  --border: 159 30% 50%;
+  --input: 159 30% 50%;
+  --ring: 159 55% 45%;
+  --radius: 0.75rem;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  :root {
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--secondary);
+    --sidebar-accent-foreground: var(--secondary-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+  }
+  .dark {
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--secondary);
+    --sidebar-accent-foreground: var(--secondary-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+    --color-1: 0 100% 63%;
+    --color-2: 270 100% 63%;
+    --color-3: 210 100% 63%;
+    --color-4: 195 100% 63%;
+    --color-5: 90 100% 63%;
+  }
+  }
+
+/* @layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+} */

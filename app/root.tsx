@@ -1,14 +1,20 @@
 import {
   isRouteErrorResponse,
+  Link,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
+import { WalletProvider } from "./hooks/use-wallet";
+import { SidebarProvider } from "./components/ui/sidebar";
+import { useEffect, useState } from "react";
+import { ContractsService } from "./services/initialization";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,7 +30,29 @@ export const links: Route.LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export async function clientLoader() {
+  const contractService = new ContractsService(); 
+  return {
+    contractService
+  }
+}
+clientLoader.hydrate = true as const;
+
+interface LayoutProps{
+  children: React.ReactNode;
+}
+
+export function Layout({ children}: LayoutProps) {
+  // const data = useRouteLoaderData('root');
+  // const [open, setOpen] = useState(true)
+  // let contractService: ContractsService = loaderData.contractService;
+  // useEffect(() => {
+  //   if ((typeof window.ethereum !== 'undefined')) {
+  //     contractService = new ContractsService(); 
+  //   }
+  // }
+  // , [])
+  
   return (
     <html lang="en">
       <head>
@@ -35,6 +63,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -42,8 +71,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+
+
+export default function App({ loaderData }: Route.ComponentProps) {
+  const contractService = loaderData.contractService;
+  const [open, setOpen] = useState(true)
+  // let contractService: ContractsService;
+  // // let contractService: ContractsService = loaderData.contractService;
+  // useEffect(() => {
+  //   if ((typeof window.ethereum !== 'undefined')) {
+  //     contractService = new ContractsService(); 
+  //   }
+  // }
+  // , [])
+  return (
+    <WalletProvider contractService={contractService!}>
+    <SidebarProvider open={open} onOpenChange={setOpen}>
+      <Outlet/>
+    </SidebarProvider>
+  </WalletProvider>
+)
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

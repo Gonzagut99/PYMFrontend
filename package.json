@@ -34,6 +34,7 @@
     "react-hook-form": "^7.53.2",
     "react-metamask-avatar": "^2.0.10",
     "react-router": "^7.0.1",
+    "react-toastify": "^10.0.6",
     "remix-hook-form": "^6.0.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",

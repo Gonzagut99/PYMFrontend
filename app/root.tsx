@@ -15,6 +15,8 @@ import { WalletProvider } from "./hooks/use-wallet";
 import { SidebarProvider } from "./components/ui/sidebar";
 import { useEffect, useState } from "react";
 import { ContractsService } from "./services/initialization";
+import toastStyles from "react-toastify/dist/ReactToastify.css?url";
+import { ToastContainer } from "react-toastify";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -28,6 +30,7 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
   { rel: "stylesheet", href: stylesheet },
+  { rel: "stylesheet", href: toastStyles },
 ];
 
 export async function clientLoader() {
@@ -66,6 +69,19 @@ export function Layout({ children}: LayoutProps) {
         
         <ScrollRestoration />
         <Scripts />
+        <ToastContainer
+        containerId={'rootToaster'}
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                ></ToastContainer>
       </body>
     </html>
   );

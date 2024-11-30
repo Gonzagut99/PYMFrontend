@@ -1,8 +1,8 @@
 import { CheckCircle2, CoinsIcon, HomeIcon, LogOut, PlusSquareIcon, SearchCheck, ThumbsUp, Vote, Wallet } from 'lucide-react'
 import { title } from 'process'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MetaMaskAvatar } from 'react-metamask-avatar'
-import { Link, Outlet } from 'react-router'
+import { Link, Outlet, useNavigate } from 'react-router'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from '~/components/ui/breadcrumb'
 import { Button } from '~/components/ui/button'
@@ -11,6 +11,9 @@ import Particles from '~/components/ui/particles'
 import { Separator } from '~/components/ui/separator'
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator, SidebarTrigger } from '~/components/ui/sidebar'
 import { useWallet } from '~/hooks/use-wallet'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import ShimmerButton from '~/components/ui/shimmer-button'
 
 const items = [
     {
@@ -20,15 +23,15 @@ const items = [
     },
     
     {
-      title: "Acerca de",
-      url: "#",
+      title: "Servicios",
+      url: "/home#services",
       icon: SearchCheck,
     },
-    {
-      title: "Conectar Billetera",
-      url: "#",
-      icon: Wallet,
-    }
+    // {
+    //   title: "Conectar Billetera",
+    //   url: "#",
+    //   icon: Wallet,
+    // }
   ]
   
   const actions = [
@@ -60,29 +63,38 @@ const items = [
   ]
 
 function Layout() {
+  const navigate = useNavigate();
     const [color, setColor] = useState("#2a9d8f");
     const { account, accountData, connectWallet, disconnectWallet } = useWallet();
-    const openMetaMaskPanel = async () => {
-      try {
-        if (typeof window.ethereum !== 'undefined' && account) {
-          const from = account;
-          const msg = 'Solicitando firma para abrir MetaMask';
-          await window.ethereum.request({
-            method: 'personal_sign',
-            params: [msg, from],
-          });
-        } else {
-          console.error('MetaMask no está instalado o no hay cuenta conectada');
-        }
-      } catch (error) {
-        console.error('Error al solicitar la firma:', error);
+    // const openMetaMaskPanel = async () => {
+    //   try {
+    //     if (typeof window.ethereum !== 'undefined' && account) {
+    //       const from = account;
+    //       const msg = 'Solicitando firma para abrir MetaMask';
+    //       await window.ethereum.request({
+    //         method: 'personal_sign',
+    //         params: [msg, from],
+    //       });
+    //     } else {
+    //       console.error('MetaMask no está instalado o no hay cuenta conectada');
+    //     }
+    //   } catch (error) {
+    //     console.error('Error al solicitar la firma:', error);
+    //   }
+    // };
+
+    useEffect(() => {
+      if (account) {
+        setColor("#2a9d8f");
+      } else {
+        setColor("#2a9d8f");
       }
-    };
+    }, [account]);
   return (
     <>
     <Sidebar>
         <SidebarContent>
-          <SidebarHeader>
+          <SidebarHeader onClick={()=>navigate('/home')}>
               <h1 className="text-balance text-center text-primary">Hola <span className="text-2xl font-black">PYMecripto</span></h1>
           </SidebarHeader>
           <SidebarSeparator></SidebarSeparator>
@@ -109,7 +121,9 @@ function Layout() {
             <SidebarGroupLabel className="text-primary text-lg">Casos de uso</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {actions.map((item) => (
+                {actions.map((item) => {
+                  if (item.title === 'Transferir PYM' && accountData?.account != "0x0b33cda31618ebeabb3c5c3e3671be25f7fdba82") return null
+                  return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <Link to={item.url}>
@@ -118,7 +132,7 @@ function Layout() {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                ))}
+                )})}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -158,13 +172,18 @@ function Layout() {
               </div>
               <div>
                 {
-                  !account?(<Avatar onClick={connectWallet} className="cursor-pointer hover:scale-125 transition-transform duration-300">
-                    <AvatarImage src="" />
-                    <AvatarFallback>NN</AvatarFallback>
-                  </Avatar>):(
+                  !account?(
+                  // <Avatar onClick={connectWallet} className="cursor-pointer hover:scale-125 transition-transform duration-300" title='Conectar Billetera'>
+                  //   <AvatarImage src="" />
+                  //   <AvatarFallback>NN</AvatarFallback>
+                  // </Avatar>
+                  <ShimmerButton className='shadow-lg py-2' onClick={connectWallet} >
+                    Conectar Billetera
+                  </ShimmerButton>
+                  ):(
                     <HoverCard>
                       <HoverCardTrigger>
-                        <div className="size-[40px] min-w-[40px] rounded-full relative cursor-pointer" onClick={openMetaMaskPanel}>
+                        <div className="size-[40px] min-w-[40px] rounded-full relative cursor-pointer">
                           <MetaMaskAvatar  address={account} size={40} className="absolute inset-0 [&>img]:rounded-full [&>img]:object-cover hover:scale-125 transition-transform duration-300"/>
                         </div>
                       </HoverCardTrigger>
@@ -180,8 +199,8 @@ function Layout() {
                           <Separator className="my-4"></Separator>
                           <div>
                             <p><strong>Saldo:</strong> {accountData?.ethBalance} Sepolia{accountData?.ethSymbol}</p>
-                            <p><strong>Saldo PYM:</strong> {accountData?.formattedBalance} {accountData?.ethSymbol}</p>
-                            <p><strong>Suministro total:</strong> {accountData?.formattedTotalSupply} {accountData?.ethSymbol}</p>
+                            <p><strong>Saldo PYM:</strong> {accountData?.formattedBalance} {accountData?.symbol}</p>
+                            <p><strong>Suministro total:</strong> {accountData?.formattedTotalSupply} {accountData?.symbol}</p>
                           </div>
                           <Separator className="my-4"></Separator>
                           <Button className="space-x-2" onClick={disconnectWallet}><span><LogOut></LogOut></span>Cerrar conexión</Button>
@@ -199,6 +218,20 @@ function Layout() {
               <Outlet></Outlet>
             </article>
           </div>
+          {/* <ToastContainer></ToastContainer> */}
+          <ToastContainer
+        containerId={'generalToaster'}
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                ></ToastContainer>
         </div>
   </>
   )

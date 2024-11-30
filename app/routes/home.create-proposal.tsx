@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { set, z } from 'zod'
 import { BorderBeam } from '~/components/ui/border-beam'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '~/components/ui/card'
@@ -11,6 +11,8 @@ import { useWallet } from '~/hooks/use-wallet'
 import { Proposal } from '~/services/governanceServices'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Separator } from '~/components/ui/separator'
+import { PageHeader } from '~/components/PageHeader'
+import { ToastContainer } from 'react-toastify'
 
 // export function clientLoader() {
 //     return {
@@ -21,6 +23,8 @@ import { Separator } from '~/components/ui/separator'
 const formSchema = z.object({
     proposalDescription: z.string().min(50, {
       message: "La propuesta debe tener al menos 50 caracteres",
+    }).max(500, {
+        message: "La propuesta debe tener menos de 500 caracteres",
     }),
   })
 
@@ -30,22 +34,33 @@ function CreateProposal() {
 
     const [proposals, setProposals] = React.useState<Proposal[] | []>([]);
     const [showProposals, setShowProposals] = React.useState<boolean>(false);
+    const [loading, setLoading] = React.useState<boolean>(false);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        // defaultValues: {
-        //   proposalDescription: "",
-        // },
+        defaultValues: {
+          proposalDescription: "",
+        },
       })
+    
+    const [proposalCounter, setProposalCounter] = React.useState<number>(0);
+    const textAreaValue = form.watch('proposalDescription');
+    useEffect(() => {
+        setProposalCounter(textAreaValue.length);
+    }, [textAreaValue])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         console.log(values)
         if (typeof window.ethereum !== 'undefined') {
+            setLoading(true);
             await governanceService.createProposal(values.proposalDescription)
             .then(() => {
                 console.log('Propuesta creada');
+                form.reset();
+                setLoading(false);
             })
             .catch((error) => {
+                setLoading(false);
                 console.error('Error creando propuesta: ', error);
             });
         }
@@ -54,8 +69,10 @@ function CreateProposal() {
         if (typeof window.ethereum !== 'undefined') {
             try {
                 const proposals = await governanceService.getProposals();
-                setProposals(proposals);
-                setShowProposals(true);
+                if (proposals) {
+                    setProposals(proposals);
+                    setShowProposals(true);
+                }
                 console.log(proposals)
             } catch (error) {
                 console.error('Error getting proposals: ', error);
@@ -74,11 +91,25 @@ function CreateProposal() {
     
   return (
     <>
-        <section className='w-full h-[200px] relative p-4 flex items-end rounded-md'>
+        {/* <section className='w-full h-[200px] relative p-4 flex items-end rounded-md'>
             <img className='w-full h-full absolute object-cover rounded-md inset-0 z-0 mask-linear mask-dir-to-b mask-from-100 mask-to-30 mask-point-to-[95%]' src="https://images.pexels.com/photos/6913299/pexels-photo-6913299.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="create proposal" />
             <h1 className='text-5xl font-black relative z-10 text-primary'>Propuestas de gobernanza</h1>
             <BorderBeam></BorderBeam>
-        </section >
+        </section > */}
+        {/* <ToastContainer
+        containerId={'create-proposal'}
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                ></ToastContainer> */}
+        <PageHeader title='Propuestas de gobernanza' imgSrc="https://images.pexels.com/photos/6913299/pexels-photo-6913299.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"></PageHeader>
         <section className='w-full space-y-6'>
             <header className='text-2xl font-semibold text-start w-full space-y-2'>
                 <h2>Crear Propuesta</h2>
@@ -105,13 +136,21 @@ function CreateProposal() {
                                         className='w-full p-2 border border-gray-300 rounded-md'
                                     ></Textarea>
                                     </FormControl>
-                                    <FormDescription>La propuesta debe tener al menos 50 caracteres</FormDescription>
+                                    <FormDescription className={proposalCounter<=500 && proposalCounter>=50?'text-green-600':'text-red-600'}>
+                                        <span>
+                                            {proposalCounter}/{
+                                                proposalCounter <= 50 ? 'min(50)' : 'max(500)'
+                                            }
+                                        </span>
+                                    </FormDescription>
                                     <FormMessage></FormMessage>
                                 </FormItem>
                             )}
                         ></FormField>
-                        <Button variant={'secondary'} type='submit'>
-                            Crear propuesta
+                        <Button variant={'default'} type='submit' disabled={loading}>
+                            {
+                                loading ? 'Creando propuesta...' : 'Crear propuesta'
+                            }
                         </Button>
                 </form>
                 
@@ -122,7 +161,7 @@ function CreateProposal() {
             <header className='text-2xl font-semibold text-start w-full'>
                 Propuestas
             </header>
-            <Button onClick={getProposals}>
+            <Button variant={'secondary'} onClick={getProposals}>
                 Cargar propuestas
             </Button>
             {

@@ -1,4 +1,5 @@
-import { BrowserProvider, Contract, ContractRunner, formatEther, JsonRpcProvider } from "ethers";
+import { BrowserProvider, Contract, ContractRunner, ethers, formatEther, JsonRpcProvider } from "ethers";
+import { toast } from "react-toastify";
 
 export type Proposal = {
     id: number;
@@ -65,9 +66,26 @@ export class GovernanceServices {
         try {
             const tx = await this.governanceContract.createProposal(description)
             await tx.wait()
+            // // Esperar a que la transacción sea minada
+            // const receipt = await tx.wait();
+            // console.log('Transaction mined:', receipt);
+            // Escuchar el evento ProposalCreated
+            this.governanceContract.on('ProposalCreated', (id, description) => {
+                console.log(`Proposal created with ID: ${id}, Description: ${description}`);
+                // Aquí puedes actualizar el estado de tu aplicación o realizar otras acciones
+                toast.success(`Propuesta creada: ID: ${id}, Description: ${description}`);
+            });
             console.log('Proposal created successfully')
-        } catch (error) {
-            console.error('Error creating proposal: ', error)
+            
+        } catch (error:any) {
+            console.error('Error creating proposal: ', error);
+            if (error.code === 4001) {
+                toast.error('Transacción rechazada por el usuario');
+            } else if (error.message.includes('No tiene suficientes tokens PYM')) {
+                toast.error('No tienes suficientes tokens PYM');
+            } else {
+                toast.error('Error creando la propuesta');
+            }
         }
     }
 
@@ -76,8 +94,31 @@ export class GovernanceServices {
             const tx = await this.governanceContract.vote(proposalId, vote)
             await tx.wait()
             console.log('Voted successfully')
-        } catch (error) {
+
+            this.governanceContract.on('Voted', (proposalId, support, voter) => {
+                console.log(`Voted on proposal: ${proposalId}, Support: ${support}, Voter: ${voter}`);
+                // Aquí puedes actualizar el estado de tu aplicación o realizar otras acciones
+                toast.success(`Votaste en la propuesta: ${proposalId}, ${support == 1 ? 'A favor':'En contra'}, Votante: ${voter}`);
+            })
+        } catch (error:any) {
             console.error('Error voting on proposal: ', error)
+            // toast.error('Error votando en la propuesta')
+            console.error('Error voting on proposal: ', error);
+            if (error.code === 4001) {
+                toast.error('Transacción rechazada por el usuario');
+            } else if (error.message.includes('La votacion no ha comenzado')) {
+                toast.error('La votación no ha comenzado');
+            } else if (error.message.includes('La votacion ha terminado')) {
+                toast.error('La votación ha terminado');
+            } else if (error.message.includes('Ya has votado en esta propuesta')) {
+                toast.error('Ya has votado en esta propuesta');
+            } else if (error.message.includes('No tienes poder de voto')) {
+                toast.error('No tienes poder de voto');
+            } else if (error.message.includes('Opcion de voto invalida')) {
+                toast.error('Opción de voto inválida');
+            } else {
+                toast.error('Error votando en la propuesta');
+            }
         }
     }
 
@@ -95,28 +136,22 @@ export class GovernanceServices {
         try {
             const proposal = await this.governanceContract.proposals(proposalId)
             console.log(proposal)
-            return proposal.wait()
+            return {
+                id: Number(proposal[0]),
+                description: proposal[1],
+                votesFor: Number(proposal[2]),
+                votesAgainst: Number(proposal[3]),
+                startTime: Number(proposal[4]),
+                snapshotBlock: Number(proposal[5]),
+                executed: proposal[6]
+            }
         } catch (error) {
             console.error('Error getting proposal: ', error)
             return null
         }
     }
 
-    public async getProposals() {
-        // [
-        //     Result(7) [ 0n, 'Test Proposal 1', 0n, 0n, 1732844147n, 52n, false ],
-        //     Result(7) [ 1n, 'Test Proposal 2', 0n, 0n, 1732844148n, 53n, false ],
-        //     Result(7) [ 2n, 'Test Proposal 3', 0n, 0n, 1732844149n, 54n, false ]
-        //   ]
-        // struct Proposal {
-        //     uint256 id;
-        //     string description;
-        //     uint256 votesFor;
-        //     uint256 votesAgainst;
-        //     uint256 startTime;
-        //     uint256 snapshotBlock;
-        //     bool executed;
-        // }
+    public async getProposals(): Promise<Proposal[] | null> {
         try {
             let proposals = await this.governanceContract.getAllProposals()
             console.log('Proposals: ', proposals)
@@ -156,6 +191,22 @@ export class GovernanceServices {
         } catch (error) {
             console.error('Error getting delegated votes: ', error)
             return null
+        }
+    }
+
+    public async mintTokens(to: string, amount: number) {
+        try {
+            const tx = await this.governanceContract.mint(to, ethers.parseUnits(amount.toString(), 18));
+            await tx.wait();
+            console.log('Tokens minted successfully');
+            toast.success('Tokens enviadas exitosamente');
+        } catch (error: any) {
+            console.error('Error minting tokens: ', error);
+            if (error.code === 4001) {
+                toast.error('Transaction rejected by user');
+            } else {
+                toast.error('Error enviando tokens');
+            }
         }
     }
 }

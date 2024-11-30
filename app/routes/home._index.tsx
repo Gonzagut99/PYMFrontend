@@ -113,12 +113,12 @@ return (
                   }</RainbowButton>
               </BlurFade>
             </div>
-            <div className="flex-grow animate-fade delay-500 bg-primary/50 shadow-lg rounded-3xl">
+            <div className="flex-grow animate-fade delay-500 bg-secondary shadow-lg rounded-3xl">
               <img src="/PymecryptoConceptArt.png" alt="Concept Art" className="aspect-square max-w-80 mask-point-from-[70%] mask-linear mask-from-100 mask-to-10 object-contain rounded-3xl"/>
             </div>
           </section>
           <Separator className="my-4"></Separator>
-          <section>
+          <section id='services'>
             <Bento></Bento>
           </section>
   </>

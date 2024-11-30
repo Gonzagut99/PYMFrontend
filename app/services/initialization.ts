@@ -42,7 +42,7 @@ export class ContractsService {
     private governanceContract!: Contract;
     private fundRaisingContract!: Contract;
     private governanceContractService!: GovernanceServices;
-    private funsRaisingContractService!: FundRaisingServices;
+    private fundsRaisingContractService!: FundRaisingServices;
     private governanceContractAddress = GOVERNANCE_CONTRACT_ADDRESS // envs.GOVERNANCE_CONTRACT_ADDRESS;
     private projectContractAddress = PROJECT_CONTRACT_ADDRESS // envs.PROJECT_CONTRACT_ADDRESS;|
     private governanceContractAbi = governanceABI;
@@ -60,7 +60,7 @@ export class ContractsService {
             this.governanceContract = new Contract(this.governanceContractAddress, this.governanceContractAbi, this.signer);
             this.fundRaisingContract = new Contract(this.projectContractAddress, this.projectFundingABI, this.signer);
             this.governanceContractService = new GovernanceServices(this.provider, this.governanceContract);
-            this.funsRaisingContractService = new FundRaisingServices(this.governanceContract, this.fundRaisingContract);
+            this.fundsRaisingContractService = new FundRaisingServices(this.governanceContract, this.fundRaisingContract);
             
         } else {
             console.error('Please install MetaMask!');
@@ -118,7 +118,7 @@ export class ContractsService {
     }
 
     public getFundRaisingContractService(): FundRaisingServices {
-        return this.funsRaisingContractService;
+        return this.fundsRaisingContractService;
     }
 }
 

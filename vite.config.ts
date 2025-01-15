@@ -10,6 +10,6 @@ export default defineConfig({
       plugins: [tailwindcss, autoprefixer],
     },
   },
-  base:'/PYMFrontend/', //Deployed
+  // base:'/PYMFrontend/', //Deployed
   plugins: [reactRouter(), tsconfigPaths()],
 });

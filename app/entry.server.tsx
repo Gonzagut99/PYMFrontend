@@ -19,6 +19,7 @@ export default function handleRequest(
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     let userAgent = request.headers.get("user-agent");
+    let productionUrl = import.meta.env.PUBLIC_BASE_PATH
 
     // Ensure requests from bots and SPA Mode renders wait for all content to load before responding
     // https://react.dev/reference/react-dom/server/renderToPipeableStream#waiting-for-all-content-to-load-for-crawlers-and-static-generation
@@ -30,7 +31,7 @@ export default function handleRequest(
     const { pipe, abort } = renderToPipeableStream(
       <ServerRouter
         context={routerContext}
-        url={request.url}
+        url={productionUrl ? `productionUrl${request.url}`: `${request.url}`}
         abortDelay={ABORT_DELAY}
       />,
       {

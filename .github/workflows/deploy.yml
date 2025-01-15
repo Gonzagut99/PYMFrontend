@@ -33,7 +33,7 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: skywarth/vite-github-pages-deployer@v1.4.0
         with:
-          public_base_path: '/client-state-manage-react/'  # Ajusta según sea necesario
+          public_base_path: '/PYMFrontend/'  # Ajusta según sea necesario
           build_path: './build/server/'
           install_phase_node_env: 'dev'
           build_phase_node_env: 'production'

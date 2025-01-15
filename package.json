@@ -4,7 +4,7 @@
   "type": "module",
   "homepage": "https://github.com/Gonzagut99/PYMFrontend",
   "scripts": {
-    "build": "react-router build",
+    "build": "react-router build --base=PUBLIC_BASE_PATH",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc --build --noEmit",
